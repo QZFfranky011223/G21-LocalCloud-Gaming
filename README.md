@@ -86,6 +86,7 @@ Editar `/etc/netplan/00-installer-config.yaml` en cada VM para asignar las IPs e
 **2. Despliegue de Servicios (Docker):**
 En VM 2 (Compute) y VM 3 (Monitor), clonar el repositorio y ejecutar:
 ```bash
+```
 ### 5.3. Ficheros de Configuración Clave
 *   `/nodo-compute/docker-compose.yml`: Define los servicios de Minecraft (PaperMC) y Luanti, limitando recursos (RAM/CPU).
 *   `/nodo-compute/scripts/menu_servidor.sh`: Script interactivo para administración y backups manuales.
