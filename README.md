@@ -86,5 +86,28 @@ Editar `/etc/netplan/00-installer-config.yaml` en cada VM para asignar las IPs e
 **2. Despliegue de Servicios (Docker):**
 En VM 2 (Compute) y VM 3 (Monitor), clonar el repositorio y ejecutar:
 ```bash
-cd nodo-compute/   # O nodo-monitor/
-docker compose up -d
+### 5.3. Ficheros de Configuración Clave
+*   `/nodo-compute/docker-compose.yml`: Define los servicios de Minecraft (PaperMC) y Luanti, limitando recursos (RAM/CPU).
+*   `/nodo-compute/scripts/menu_servidor.sh`: Script interactivo para administración y backups manuales.
+*   `/nodo-monitor/prometheus.yml`: Configuración de scraping para recolectar métricas de las IPs 192.168.0.201 a 205.
+*   `/etc/crontab` (en VM 2): Programación de la tarea de respaldo a las 03:00 AM.
+
+## ⚠️ VI. Pruebas y Validación
+
+| Prueba Realizada | Resultado Esperado | Resultado Obtenido |
+| :--- | :--- | :--- |
+| **Simulación de Ataque DoS** (hping3 desde VM 4) | El uso de CPU en VM 2 debe subir drásticamente y Grafana debe registrar el pico. | **[OK]** Grafana mostró uso de CPU > 90% y alerta visual. |
+| **Validación de Backup Automático** | El archivo `.tar.gz` debe aparecer en la carpeta RAID de la VM 1 sin intervención manual. | **[OK]** Archivo recibido correctamente vía SCP. |
+| **Resolución DNS Interna** | Ping a `dashboard.juego.lan` debe resolver a `192.168.0.203`. | **[OK]** Pi-hole resolvió el dominio correctamente. |
+| **Acceso Seguro Web** | Acceso al panel de control vía HTTP debe redirigir o bloquearse, permitiendo solo HTTPS. | **[OK]** Nginx Proxy Manager gestionó el certificado SSL. |
+
+## 📚 VII. Conclusiones y Lecciones Aprendidas
+
+El proyecto **LocalCloud Gaming** demostró la viabilidad de utilizar tecnologías de contenedores y virtualización para crear servicios robustos de entretenimiento.
+
+*   **Logros:** Se logró una integración exitosa entre servicios dispares (Juegos, DNS, Monitoreo) utilizando una red interna estática. La implementación de RAID 1 y la automatización de backups aseguran la integridad de los datos de los usuarios, un activo crítico en servidores de juegos.
+*   **Desafíos Superados:** La configuración de la comunicación segura entre nodos (SSH Keys) y la correcta configuración de los targets en Prometheus requirieron un ajuste fino de los firewalls (UFW) para permitir el tráfico en puertos específicos (9100, 3000, 22).
+*   **Lección Aprendida:** La observabilidad no es opcional. Durante las pruebas de estrés, sin Grafana hubiera sido difícil identificar qué recurso (CPU vs RAM) estaba siendo el cuello de botella.
+
+---
+© 2025 Facultad de Tecnología - USFX
