@@ -1,0 +1,45 @@
+services:
+  # --- Servicio de juego (LUANTI) ---
+  luanti:
+    image: lscr.io/linuxserver/luanti:latest
+    container_name: luanti
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/La_Paz
+      - "CLI_ARGS=--world /config/.minetest/worlds/white_castle"
+    volumes:
+      - /home/sebastian/luanti-data:/config/.minetest
+    ports:
+      - 30000:30000/udp
+    restart: unless-stopped
+
+  # --- Servicio de juego (MINECRAFT) ---
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft
+    environment:
+      - EULA=TRUE
+      - TYPE=PAPER
+      - MEMORY=1536M
+      - MAX_PLAYERS=10
+      - ONLINE_MODE=FALSE
+    volumes:
+      - /home/sebastian/minecraft-data:/data
+    ports:
+      - 25565:25565
+    restart: unless-stopped
+
+
+  # --- Monitoreo (NODE EXPORTER) ---
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    ports:
+      - "9100:9100"
